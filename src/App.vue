@@ -1,13 +1,13 @@
 <!-- 定义整体的公共布局 -->
 <template>
-  <van-nav-bar>
+  <!-- <van-nav-bar>
     <template #title>
       <img src="@/assets/logo.png" width="1rem" height="1rem" /><span
         style="padding-left: 2px"
         >微客</span
       >
     </template>
-  </van-nav-bar>
+  </van-nav-bar> -->
 
   <!-- 激活不同页面(还是要加一个路由组件) -->
   <div id="content">
@@ -33,6 +33,6 @@ const onChange = (index) => showToast(`标签 ${index}`)
 
 <style scoped>
 #content {
-  padding-bottom: 60px;
+  /* padding-bottom: 60px; */
 }
 </style>

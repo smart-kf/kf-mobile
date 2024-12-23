@@ -1,5 +1,5 @@
 import Index from '../pages/index.vue'
 
-const routes = [{ path: '/index', component: Index }]
+const routes = [{ path: '/', component: Index }]
 
 export default routes

@@ -5,6 +5,7 @@ import * as VueRouter from 'vue-router'
 import Vant from 'vant'
 import 'vant/lib/index.css'
 import routes from './router'
+import '@/styles/index.less'
 
 // 更改成全部导入组件
 const app = createApp(App)
