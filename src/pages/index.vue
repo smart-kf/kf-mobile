@@ -5,15 +5,15 @@
       <div
         v-for="(message, index) in messages"
         :key="index"
-        :class="['message', message.sender === 'me' ? 'right' : '']"
+        :class="['message', message.isKf == '2' ? 'right' : '']"
       >
         <div class="avatar-and-name">
-          <span class="name">{{ message.name }}</span>
-          <img :src="message.avatar" alt="Avatar" />
+          <span class="name">{{ message.guestName }}</span>
+          <img :src="message.guestAvatar" alt="Avatar" />
         </div>
         <div class="message-content">
-          <p>{{ message.text }}</p>
-          <span class="time">{{ message.time }}</span>
+          <p>{{ message.content }}</p>
+          <span class="time">{{ dayjs(message.msgTime).format('HH:mm:ss') }}</span>
         </div>
       </div>
     </div>
@@ -24,6 +24,7 @@
         v-model="newMessage"
         placeholder="请输入消息..."
         class="input-box"
+        :enterkeyhint="'发送'"
         clearable
         @focus="hidePicker"
         @keydown.enter="onEnter"
@@ -47,23 +48,25 @@ import { useRouter, useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import MyAxios from '../plugins/MyAxios.ts'
 import { showToast } from 'vant'
+import WebSocketClient from '@/plugins/mySocket.js';
+import dayjs from 'dayjs'
 
 // 消息对象数组
-const messages = ref([
-  {
-    sender: 'other',
-    name: 'User 1',
-    avatar: 'https://via.placeholder.com/40',
-    text: 'Hello! How are you?',
-    time: '10:15 AM',
-  },
-  {
-    sender: 'me',
-    name: 'You',
-    avatar: 'https://via.placeholder.com/40',
-    text: "I'm good, thanks! How about you?",
-    time: '10:16 AM',
-  },
+const messages: any = ref([
+  // {
+  //   sender: 'other',
+  //   name: 'User 1',
+  //   avatar: 'https://via.placeholder.com/40',
+  //   text: 'Hello! How are you?',
+  //   time: '10:15 AM',
+  // },
+  // {
+  //   sender: 'me',
+  //   name: 'You',
+  //   avatar: 'https://via.placeholder.com/40',
+  //   text: "I'm good, thanks! How about you?",
+  //   time: '10:16 AM',
+  // },
 ]);
 
 const newMessage = ref('');
@@ -82,46 +85,23 @@ const onSelectEmoji = (emoji:any)=>{
 }
 
  const onEnter = ()=>{
-  messages.value.push({
-    sender: 'me',
-    name: 'You',
-    avatar: 'https://via.placeholder.com/40',
-    text: newMessage.value,
-    time: '10:16 AM',
-  })
+  const res = {
+    msgType: 'text',
+    msgTime: Date.now(),
+    content: newMessage.value,
+    guestAvatar: 'https://via.placeholder.com/40',
+    isKf: 2
+  }
+  messages.value.push(JSON.parse(JSON.stringify(res)))
+  wsClient.sendMessage(JSON.parse(JSON.stringify(res)))
   newMessage.value = ''
  }
 
+let wsClient: any
 
-// 发送请求获取用户数据到页面展示，钩子函数
-// await就是等到请求完成拿到数据再执行
 onMounted(async () => {
-  // const userListData = await MyAxios.get('/user/recommend', {
-  //   params: {
-  //     pageSize: 10,
-  //     pageNum: 1,
-  //   },
-  // })
-  //   .then(function (response) {
-  //     console.log('请求/search/tags成功', response)
-  //     return response?.data?.records
-  //   })
-  //   .catch(function (error) {
-  //     console.log('请求/search/tags失败', error.response.data.message)
-  //     if (error.response.data.message === '用户未登录') {
-  //       showToast('用户未登录')
-  //       router.push({ path: '/user/login' })
-  //     }
-  //     return error
-  //   })
-  // if (userListData.length >= 1) {
-  //   userListData.forEach((user: any) => {
-  //     if (user.tags) {
-  //       user.tags = JSON.parse(user.tags)
-  //     }
-  //   })
-  //   userList.value = userListData
-  // }
+  // 创建ws链接
+  wsClient = new WebSocketClient();
 })
 </script>
 
