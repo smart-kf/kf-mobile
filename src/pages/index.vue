@@ -48,7 +48,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import MyAxios from '../plugins/MyAxios.ts'
 import { showToast } from 'vant'
-import WebSocketClient from '@/plugins/mySocket.js';
+import WebSocketClient from '@/plugins/mySocket.ts';
 import dayjs from 'dayjs'
 
 // 消息对象数组
