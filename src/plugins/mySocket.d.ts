@@ -1,9 +1,10 @@
 export declare class WebSocketClient {
-    constructor() {};
+    
+    constructor();
 
     connect(): void;
 
     sendMessage(message: any): void;
 
-    onMessage(handler: any): void;
+    onMessage(handler: (data: any) => void): void;
 }
