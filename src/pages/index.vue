@@ -103,6 +103,11 @@ let wsClient: any
 onMounted(async () => {
   // 创建ws链接
   wsClient = new WebSocketClient();
+
+  wsClient.onMessage((res:any)=>{
+    console.log('接收到啦：',res);
+    messages.value.push(JSON.parse(JSON.stringify(res)))
+  })
 })
 </script>
 
