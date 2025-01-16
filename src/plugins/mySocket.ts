@@ -21,7 +21,7 @@ class WebSocketClient {
       host: 'goim.smartkf.top',
       secure: true,
       transports: ['websocket'],
-      query: 'token=helloworld&platform=kf',
+      query: 'token=58|0233a664e9cb4d6e87fbb4c58137cb08&platform=kf',
       path: '/socket.io/',
     })
 
@@ -29,6 +29,11 @@ class WebSocketClient {
     this.socket.on('messageAck', (msg: string) => {
       let data = JSON.parse(msg)
       console.log('messageAck-->', data)
+    })
+
+    this.socket.on('message', (msg: string) => {
+      let data = JSON.parse(msg)
+      console.log('message-->', data)
       this.messageHandlers.forEach((handler) => handler(data))
     })
 

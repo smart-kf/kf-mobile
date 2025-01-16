@@ -30,7 +30,7 @@
         @keydown.enter="onEnter"
       />
       <van-icon name="smile-o" class="icon" size="18" @click="toggleEmojiPicker"/>
-      <van-icon name="add-o"  class="icon"  size="18"/>
+      <span class="send-button" @click="onEnter">发送</span>
     </div>
 
     <!-- 表情包选择区域 -->
@@ -90,7 +90,8 @@ const onSelectEmoji = (emoji:any)=>{
     msgTime: Date.now(),
     content: newMessage.value,
     guestAvatar: 'https://via.placeholder.com/40',
-    isKf: 2
+    isKf: 2,
+    
   }
   messages.value.push(JSON.parse(JSON.stringify(res)))
   wsClient.sendMessage(JSON.parse(JSON.stringify(res)))
@@ -108,7 +109,7 @@ onMounted(async () => {
 <style lang="less" scoped>
   
 .chatroom-contain {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -187,6 +188,13 @@ onMounted(async () => {
 
     .icon{
       margin-left: 10px;
+    }
+
+    .send-button{
+      display: inline-block;
+      padding: 0 4px;
+      width: 50px;
+      user-select: none;
     }
   }
 
