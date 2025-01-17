@@ -19,7 +19,7 @@
     </div>
 
     <!-- 消息输入区域 -->
-    <div class="input-area">
+    <div class="input-area safe-area-inset-bottom">
       <van-field
         v-model="newMessage"
         placeholder="请输入消息..."
@@ -125,7 +125,8 @@ onMounted(async () => {
   
   /* 消息展示区域 */
   .message-display {
-    flex: 1;
+    // flex: 1;
+    height: calc(100vh - 80px);
     padding: 20px;
     overflow-y: auto;
     display: flex;
@@ -185,9 +186,9 @@ onMounted(async () => {
   
   /* 消息输入区域 */
   .input-area {
+    height: 80px;
     display: flex;
     align-items: center;
-    padding: 10px;
     background-color: #fff;
     border-top: 1px solid #ddd;
 
