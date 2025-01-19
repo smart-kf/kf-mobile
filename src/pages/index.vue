@@ -123,7 +123,7 @@ onMounted(async () => {
 <style lang="less" scoped>
   
 .chatroom-contain {
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
