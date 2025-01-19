@@ -111,6 +111,8 @@ onMounted(async () => {
 
   // 获取视口高度
   console.log('视口高度为:', window.innerHeight, 'px');
+  // 容器高度
+  console.log('展示区高度为:', document.querySelector('.chatroom-contain')?.clientHeight, 'px');
   // 获取展示区的高度
   console.log('展示区高度为:', document.querySelector('.message-display')?.clientHeight, 'px');
   // 获取发送区域高度
