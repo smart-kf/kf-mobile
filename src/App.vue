@@ -33,7 +33,7 @@ const onChange = (index) => showToast(`标签 ${index}`)
 
 <style scoped>
 #content {
-  height: 100vh;
+  height: 100%;
   /* padding-bottom: 60px; */
 }
 </style>

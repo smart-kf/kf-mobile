@@ -108,6 +108,13 @@ onMounted(async () => {
     console.log('接收到啦：',res);
     messages.value.push(JSON.parse(JSON.stringify(res)))
   })
+
+  // 获取视口高度
+  console.log('视口高度为:', window.innerHeight, 'px');
+  // 获取展示区的高度
+  console.log('展示区高度为:', document.querySelector('.message-display')?.clientHeight, 'px');
+  // 获取发送区域高度
+  console.log('发送区高度为:', document.querySelector('.input-area')?.clientHeight, 'px');
 })
 </script>
 
@@ -120,20 +127,19 @@ onMounted(async () => {
   justify-content: space-between;
   background: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow-y: hidden;
 }
   
-  /* 消息展示区域 */
-  .message-display {
-    // flex: 1;
-    height: calc(100vh - 80px);
-    padding: 20px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    background-color: #f9f9f9;
-  }
+/* 消息展示区域 */
+.message-display {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #f9f9f9;
+}
   
   .message {
     display: flex;
@@ -186,7 +192,6 @@ onMounted(async () => {
   
   /* 消息输入区域 */
   .input-area {
-    height: 80px;
     display: flex;
     align-items: center;
     background-color: #fff;
