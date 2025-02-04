@@ -12,7 +12,14 @@
           <img :src="message.guestAvatar" alt="Avatar" />
         </div>
         <div class="message-content">
-          <p>{{ message.content }}</p>
+          <p v-if="message.msgType==='text'">{{ message.content }}</p>
+          <template v-if="message.msgType==='image'">
+            <van-image width="100" height="100" :src="message.content" @click="previewImage(message.content)"/>
+          </template>
+          <div v-if="message.msgType === 'video'" class="video-contain">
+              <video :src="message.content" class="video-box"></video>
+              <van-icon name="play-circle-o" class="play-icon" @click="playVideo(message.content)"/>
+            </div>
           <span class="time">{{ dayjs(message.msgTime).format('HH:mm:ss') }}</span>
         </div>
       </div>
@@ -30,6 +37,9 @@
         @keydown.enter="onEnter"
       />
       <van-icon name="smile-o" class="icon" size="18" @click="toggleEmojiPicker"/>
+      <van-uploader :after-read="afterRead" :max-count="9" accept="image/*,video/*">
+        <van-icon name="photo-o" class="icon" size="18"/>
+      </van-uploader>
       <span class="send-button" @click="onEnter">发送</span>
     </div>
 
@@ -37,6 +47,14 @@
     <div v-if="showEmojiPicker" class="emoji-list">
       <EmojiPicker :native="true" @select="onSelectEmoji" />
     </div>
+
+    <!-- 视频播放 -->
+    <van-overlay v-if="showVideo" :show="showVideo" @click="showVideo = false">
+      <div class="video-wrapper" @click.stop>
+        <van-icon name="close" class="close-icon" @click="showVideo = false"/>
+        <video :src="videoUrl" controls width="100%" autoplay class="video-player"></video>
+      </div>
+    </van-overlay>
     
   </div>
 </template>
@@ -50,6 +68,7 @@ import MyAxios from '../plugins/MyAxios.ts'
 import { showToast } from 'vant'
 import WebSocketClient from '@/plugins/mySocket.ts';
 import dayjs from 'dayjs'
+import { showImagePreview } from 'vant';
 
 // 消息对象数组
 const messages: any = ref([
@@ -70,8 +89,9 @@ const messages: any = ref([
 ]);
 
 const newMessage = ref('');
-const showEmojiPicker = ref(false);
 
+/** 选择表情包  */
+const showEmojiPicker = ref(false);
 const toggleEmojiPicker = () => {
   showEmojiPicker.value = !showEmojiPicker.value;
 };
@@ -83,6 +103,42 @@ const hidePicker = () => {
 const onSelectEmoji = (emoji:any)=>{
   newMessage.value += emoji.i;
 }
+/** 选择表情包  */
+
+/** 选择文件 */
+const afterRead = (file: any) => {
+  console.log('file:',file);
+  const isImage = file.file.type.includes('image')
+  // TODO 上传至服务器
+  // 发送至聊天框
+  const res = {
+    msgType: isImage ? 'image' : 'video', // 需要区分video or image
+    msgTime: Date.now(),
+    content: isImage ? 'https://cdn.smartkf.top/text.png' : 'https://cdn.smartkf.top/QQ20250120-134814-HD.mp4', //上传成功后获取到的url
+    guestAvatar: 'https://via.placeholder.com/40',
+    isKf: 2,
+  }
+  messages.value.push(JSON.parse(JSON.stringify(res)))
+  wsClient.sendMessage(JSON.parse(JSON.stringify(res)))
+  return true;
+};
+
+// 预览图片
+const previewImage = (url:string)=>{
+  showImagePreview({
+    images:[url],
+    closeable: true
+  });
+}
+
+// 预览视频
+const showVideo = ref(false)
+const videoUrl = ref('')
+const playVideo = (url: string)=>{
+  showVideo.value = true
+  videoUrl.value = url
+}
+/** 选择文件 */
 
  const onEnter = ()=>{
   const res = {
@@ -143,54 +199,94 @@ onMounted(async () => {
   background-color: #f9f9f9;
 }
   
-  .message {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    max-width: 80%;
+.message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: 80%;
+}
+
+.message .avatar-and-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.message .avatar-and-name .name {
+  font-size: 0.9em;
+  color: #555;
+}
+
+.message img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.message-content {
+  background: #e0e0e0;
+  padding: 10px 15px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-content .time {
+  font-size: 0.75em;
+  color: #888;
+  margin-top: 5px;
+  align-self: flex-end;
+}
+
+.message.right {
+  margin-left: auto;
+  flex-direction: row-reverse;
+}
+
+.message.right .message-content {
+  background: #9EEA6A;
+}
+
+.video-contain{
+  position: relative;
+  .video-box{
+    width: 200px;
+    height: 120px;
   }
-  
-  .message .avatar-and-name {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .message .avatar-and-name .name {
-    font-size: 0.9em;
-    color: #555;
-  }
-  
-  .message img {
-    width: 40px;
-    height: 40px;
+  .play-icon{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    color: #fff;
+    font-size: 36px;
+    background: #ccc;
     border-radius: 50%;
   }
-  
-  .message-content {
-    background: #e0e0e0;
-    padding: 10px 15px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
+}
+
+.video-wrapper{
+  width: 100%;
+  height: 100%;
+  position: relative;
+  .video-player{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
   }
-  
-  .message-content .time {
-    font-size: 0.75em;
-    color: #888;
-    margin-top: 5px;
-    align-self: flex-end;
+
+  .close-icon{
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    color: #fff;
+    background: #ccc;
+    border-radius: 50%;
   }
-  
-  .message.right {
-    margin-left: auto;
-    flex-direction: row-reverse;
-  }
-  
-  .message.right .message-content {
-    background: #9EEA6A;
-  }
+}
   
   /* 消息输入区域 */
   .input-area {

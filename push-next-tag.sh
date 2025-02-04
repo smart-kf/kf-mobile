@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=$(git describe --tags --abbrev=0)
+VERSION='v0.0.15'
 echo "current tag: $VERSION"
 
 
@@ -20,5 +20,5 @@ NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
 
 echo "new tag $NEW_VERSION"
 
-git tag $NEW_VERSION
+git tag -f $NEW_VERSION
 git push -u origin $NEW_VERSION
