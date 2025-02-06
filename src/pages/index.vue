@@ -255,6 +255,8 @@ onMounted(async () => {
     height: 120px;
   }
   .play-icon{
+    width: 36px;
+    height: 36px;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -296,7 +298,13 @@ onMounted(async () => {
     border-top: 1px solid #ddd;
 
     .icon{
-      margin-left: 10px;
+      margin-left: 8px;
+    }
+
+    :deep(.van-uploader__input-wrapper){
+      width: 18px;
+      height: 18px;
+      margin-right: 9px;
     }
 
     .send-button{
