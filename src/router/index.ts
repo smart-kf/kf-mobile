@@ -3,8 +3,28 @@ import ErrorPage from '../pages/errorPage.vue'
 import * as VueRouter from 'vue-router'
 import { checkIP } from '@/service/user.ts'
 
+// 获取当前 URL 的code值
+const queryString = window.location.href.split('?')[1];
+const urlParams = new URLSearchParams(queryString);
+const code = urlParams.get('code');
+
 const routes = [
-    { path: '/', component: Index },
+    { 
+        path: '/',
+        component: Index,
+        beforeEnter: async (to: any, from: any, next: any) => {
+            try {
+                const res = await checkIP({code})
+                if(res.code === 200){
+                    next();
+                }else{
+                    next({ name: 'ErrorPage' });
+                }
+            } catch (error) {
+                next({ name: 'ErrorPage' });
+            }
+        }
+    },
     { path: '/error', name: 'ErrorPage', component: ErrorPage },
 ]
 
@@ -16,31 +36,5 @@ const router = VueRouter.createRouter({
 })
 
 
-
-
-// 全局前置守卫
-router.beforeEach(async(to, from, next) => {
-    // 获取当前 URL 的code值
-    const queryString = window.location.href.split('?')[1];
-    const urlParams = new URLSearchParams(queryString);
-    const code = urlParams.get('code');
-    console.log('to.path:',to.path);
-    
-    if(to.path == '/'){
-        if(code){
-            const res = await checkIP({code})
-            if(res.code === 200){
-                next();
-            }else{
-                next({ name: 'ErrorPage' });
-            }
-        }else{
-            next({ name: 'ErrorPage' });
-        }
-    }else{
-        next();
-    }
-    
-});
 
 export default router
