@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const MyAxios = axios.create({
-    baseURL: 'http://localhost:8080/'
+    baseURL: './'
 });
 
 MyAxios.defaults.withCredentials = true; // 配置为true,向后台发送请求的时候要携带上凭证

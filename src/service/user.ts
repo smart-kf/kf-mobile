@@ -19,3 +19,8 @@ export const getCurrentUser = async () => {
     return null
   }
 }
+
+export const checkIP = async(params: any):Promise<any>=>{
+  const res: any = await MyAxios.post('/api/kf-fe/qrcode/check',params)
+  return res
+}
