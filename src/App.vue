@@ -20,6 +20,9 @@
 import { ref } from 'vue'
 import { showToast } from 'vant'
 import { useRouter } from 'vue-router'
+import VConsole from 'vconsole';
+
+const vConsole = new VConsole();
 
 const router = useRouter()
 const onClickLeft = () => {
@@ -33,6 +36,7 @@ const onChange = (index) => showToast(`标签 ${index}`)
 
 <style scoped>
 #content {
+  height: 100%;
   /* padding-bottom: 60px; */
 }
 </style>
