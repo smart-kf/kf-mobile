@@ -1,7 +1,8 @@
+import { getCurrentUser } from "@/service/user";
 import axios from "axios";
 
 const MyAxios = axios.create({
-    baseURL: './'
+    baseURL: '/'
 });
 
 MyAxios.defaults.withCredentials = true; // 配置为true,向后台发送请求的时候要携带上凭证
@@ -9,8 +10,10 @@ MyAxios.defaults.withCredentials = true; // 配置为true,向后台发送请求�
 
 // 添加请求拦截器，发送请求之前要做什么，比如数据校验等
 MyAxios.interceptors.request.use(function (config) {
-    // 在发送请求之前做些什么
-    console.log("我要发送请求了")
+    let user = getCurrentUser()
+    if (user) {
+        config.headers['Authorization'] = user.uuid;
+    }
     return config;
 }, function (error) {
     // 对请求错误做些什么
