@@ -4,9 +4,7 @@ import * as VueRouter from 'vue-router'
 import { checkIP } from '@/service/user.ts'
 
 // 获取当前 URL 的code值
-const queryString = window.location.href.split('?')[1];
-const urlParams = new URLSearchParams(queryString);
-const code = urlParams.get('code');
+const code = window.location.pathname
 
 const routes = [
     { 
