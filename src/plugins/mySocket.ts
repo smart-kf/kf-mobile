@@ -8,20 +8,23 @@ class WebSocketClient {
   // 声明socket属性，类型为Socket.io的Socket类型
   socket: any
 
+  params: any
+
   // 构造函数
-  constructor() {
+  constructor(params: any) {
+    console.log('ws参数:', params)
     // 在构造函数中调用connect方法来建立连接
-    this.connect()
+    this.connect(params)
   }
 
   // 连接方法，用于建立WebSocket连接以及设置相关的事件监听
-  connect(): void {
+  connect(params: any): void {
     // 使用io函数创建WebSocket连接，传入连接的URL以及一些配置选项
-    this.socket = io('wss://goim.smartkf.top:443/', {
-      host: 'goim.smartkf.top',
+    this.socket = io(params.fullHost, {
+      host: params.host,
       secure: true,
       transports: ['websocket'],
-      query: 'token=58|0233a664e9cb4d6e87fbb4c58137cb08&platform=kf',
+      query: 'token=' + params.uuid + '&platform=kf',
       path: '/socket.io/',
     })
 
