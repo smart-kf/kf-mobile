@@ -8,20 +8,20 @@ const code = window.location.pathname
 
 const routes = [
     { 
-        path: '/',
+        path: '/s/:pathMatch(.*)*',
         component: Index,
-        beforeEnter: async (to: any, from: any, next: any) => {
-            try {
-                const res = await checkIP({code})
-                if(res.code === 200){
-                    next();
-                }else{
-                    next({ name: 'ErrorPage' });
-                }
-            } catch (error) {
-                next({ name: 'ErrorPage' });
-            }
-        }
+        // beforeEnter: async (to: any, from: any, next: any) => {
+        //     try {
+        //         const res = await checkIP({code})
+        //         if(res.code === 200){
+        //             next();
+        //         }else{
+        //             next({ name: 'ErrorPage' });
+        //         }
+        //     } catch (error) {
+        //         next({ name: 'ErrorPage' });
+        //     }
+        // }
     },
     { path: '/error', name: 'ErrorPage', component: ErrorPage },
 ]
@@ -35,10 +35,10 @@ const router = createRouter({
 
 
 // 全局前置守卫
-// router.beforeEach(async (to, from, next) => {
-//     // 获取当前 URL 的code值
-//     let pathname = window.location.pathname;
-//     next();
-// });
+router.beforeEach(async (to, from, next) => {
+    // 获取当前 URL 的code值
+    let pathname = window.location.pathname;
+    next();
+});
 
 export default router

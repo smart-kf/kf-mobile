@@ -2,7 +2,7 @@ import { getCurrentUser } from "@/service/user";
 import axios from "axios";
 
 const MyAxios = axios.create({
-    baseURL: location.origin
+    baseURL: '/'
 });
 
 MyAxios.defaults.withCredentials = true; // 配置为true,向后台发送请求的时候要携带上凭证
