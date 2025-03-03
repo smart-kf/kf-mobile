@@ -16,13 +16,14 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'https://api.smartkf.top/', // 本地调试
-        changeOrigin: true,
-        // rewrite: (path) => path.replace(/^\/api/, ''),
-      }
-    }
-  },
+  // server: {
+  //   proxy: {
+  //     '/api': {
+  //       target: 'https://api.smartkf.top/', // 本地调试
+  //       // target: 'http://localhost:8081', // 本地调试
+  //       changeOrigin: true,
+  //       // rewrite: (path) => path.replace(/^\/api/, ''),
+  //     }
+  //   }
+  // },
 })

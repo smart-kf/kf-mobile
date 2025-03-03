@@ -1,18 +1,22 @@
 import { getCurrentUser } from "@/service/user";
 import axios from "axios";
 
+const baseURL = import.meta.env.VITE_API_URL
+
 const MyAxios = axios.create({
-    baseURL: '/'
+    baseURL: baseURL,
 });
 
-MyAxios.defaults.withCredentials = true; // 配置为true,向后台发送请求的时候要携带上凭证
+console.log('baseURL:', baseURL)
+
+// MyAxios.defaults.withCredentials = true; // 配置为true,向后台发送请求的时候要携带上凭证
 
 
 // 添加请求拦截器，发送请求之前要做什么，比如数据校验等
 MyAxios.interceptors.request.use(function (config) {
     let user = getCurrentUser()
     if (user) {
-        config.headers['Authorization'] = user.uuid;
+        config.headers['authorization'] = user.uuid;
     }
     return config;
 }, function (error) {

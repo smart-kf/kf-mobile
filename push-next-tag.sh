@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION='v0.0.15'
+VERSION='v0.0.21'
 echo "current tag: $VERSION"
 
 
