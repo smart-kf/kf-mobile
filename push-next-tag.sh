@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION='v0.0.21'
+VERSION=$(git describe --tags --abbrev=0)
 echo "current tag: $VERSION"
 
 
