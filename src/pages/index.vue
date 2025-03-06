@@ -5,7 +5,7 @@
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.isKf == '2' ? 'right' : '']">
         <div class="avatar-and-name">
           <span class="name">{{ message.guestName }}</span>
-          <img :src="message.guestAvatar" alt="Avatar" />
+          <img :src="message.isKf == '2' ? guestAvatar : kfAvatar" alt="Avatar" />
         </div>
         <div class="message-content">
           <p v-if="message.msgType === 'text'">{{ message.content }}</p>
@@ -63,31 +63,21 @@ import 'vue3-emoji-picker/css'
 import { useRouter, useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import MyAxios from '../plugins/MyAxios.ts'
-import { showToast } from 'vant'
+import { showToast,showFailToast } from 'vant'
 import WebSocketClient from '@/plugins/mySocket.ts';
 import dayjs from 'dayjs'
 import { showImagePreview, Loading } from 'vant';
 import { checkIP } from '@/service/user'
 import { getCurrentUser } from '@/service/user'
 
+// 客服头像
+const {VITE_CDN_URL,VITE_KF_AVATAR} = import.meta.env
+const kfAvatar = `${VITE_CDN_URL}${VITE_KF_AVATAR}`
+// 粉丝头像
+const guestAvatar = `${VITE_CDN_URL}${getCurrentUser().avatar}`
 
 // 消息对象数组
-const messages: any = ref([
-  // {
-  //   sender: 'other',
-  //   name: 'User 1',
-  //   avatar: 'https://via.placeholder.com/40',
-  //   text: 'Hello! How are you?',
-  //   time: '10:15 AM',
-  // },
-  // {
-  //   sender: 'me',
-  //   name: 'You',
-  //   avatar: 'https://via.placeholder.com/40',
-  //   text: "I'm good, thanks! How about you?",
-  //   time: '10:16 AM',
-  // },
-]);
+const messages: any = ref([]);
 
 const newMessage = ref('');
 const code = ref('');
@@ -121,7 +111,7 @@ const afterRead = (file: any) => {
     msgType: isImage ? 'image' : 'video', // 需要区分video or image
     msgTime: Date.now(),
     content: isImage ? 'https://cdn.smartkf.top/text.png' : 'https://cdn.smartkf.top/QQ20250120-134814-HD.mp4', //上传成功后获取到的url
-    guestAvatar: 'https://via.placeholder.com/40',
+    guestAvatar,
     isKf: 2,
   }
   messages.value.push(JSON.parse(JSON.stringify(res)))
@@ -147,11 +137,15 @@ const playVideo = (url: string) => {
 /** 选择文件 */
 
 const onEnter = () => {
+  if(!newMessage.value.trim()){
+    showFailToast('请勿发送空白消息')
+    return
+  }
   const res = {
     msgType: 'text',
     msgTime: Date.now(),
     content: newMessage.value,
-    guestAvatar: 'https://via.placeholder.com/40',
+    guestAvatar,
     isKf: 2,
 
   }
@@ -197,6 +191,7 @@ onMounted(async () => {
   }
 
   let user = getCurrentUser();
+  
 
   let wsParams = {
     host: user.wsHost,
@@ -276,6 +271,9 @@ onMounted(async () => {
   border-radius: 10px;
   display: flex;
   flex-direction: column;
+  p{
+    overflow-wrap: anywhere;
+  }
 }
 
 .message-content .time {
