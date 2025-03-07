@@ -28,3 +28,8 @@ export const checkIP = async (params: any): Promise<any> => {
   }
   return res;
 }
+
+export const msgList = async (params: any): Promise<any> => {
+  const res: any = await MyAxios.post('/api/kf-fe/msg/list', params)
+  return res;
+}

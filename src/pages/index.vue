@@ -67,7 +67,7 @@ import { showToast,showFailToast } from 'vant'
 import WebSocketClient from '@/plugins/mySocket.ts';
 import dayjs from 'dayjs'
 import { showImagePreview, Loading } from 'vant';
-import { checkIP } from '@/service/user'
+import { checkIP, msgList } from '@/service/user'
 import { getCurrentUser } from '@/service/user'
 
 // 客服头像
@@ -172,6 +172,7 @@ const checking = async () => {
 }
 
 let wsClient: any
+const lastMsgTime = ref(0)
 
 onMounted(async () => {
 
@@ -191,6 +192,13 @@ onMounted(async () => {
   }
 
   let user = getCurrentUser();
+  let msgs = await msgList({lastMsgTime: lastMsgTime.value})
+  if(msgs.code === 200) {
+    if(msgs.data.messages) {
+      messages.value.push(...msgs.data.messages)
+    }
+  }
+  console.log('msgList:', msgs);
   // 粉丝头像
   guestAvatar = `${VITE_CDN_URL}${user.avatar}`
   
