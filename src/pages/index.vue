@@ -74,7 +74,7 @@ import { getCurrentUser } from '@/service/user'
 const {VITE_CDN_URL,VITE_KF_AVATAR} = import.meta.env
 const kfAvatar = `${VITE_CDN_URL}${VITE_KF_AVATAR}`
 // 粉丝头像
-const guestAvatar = `${VITE_CDN_URL}${getCurrentUser().avatar}`
+let guestAvatar: any
 
 // 消息对象数组
 const messages: any = ref([]);
@@ -191,6 +191,8 @@ onMounted(async () => {
   }
 
   let user = getCurrentUser();
+  // 粉丝头像
+  guestAvatar = `${VITE_CDN_URL}${user.avatar}`
   
 
   let wsParams = {
