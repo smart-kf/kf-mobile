@@ -1,7 +1,7 @@
 <template>
   <div class="chatroom-contain">
     <!-- 消息展示区域 -->
-    <div class="message-display" ref="messageDisplay">
+    <div class="message-display" ref="messageDisplayRef">
       <div v-for="(message, index) in messages" :key="index" :class="['message', message.isKf == '2' ? 'right' : '']">
         <div class="avatar-and-name">
           <span class="name">{{ message.guestName }}</span>
@@ -61,20 +61,23 @@
 import EmojiPicker from 'vue3-emoji-picker'
 import 'vue3-emoji-picker/css'
 import { useRouter, useRoute } from 'vue-router'
-import { onMounted, ref } from 'vue'
-import MyAxios from '../plugins/MyAxios.ts'
-import { showToast,showFailToast } from 'vant'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { showFailToast } from 'vant'
 import WebSocketClient from '@/plugins/mySocket.ts';
 import dayjs from 'dayjs'
 import { showImagePreview, Loading } from 'vant';
 import { checkIP, msgList } from '@/service/user'
 import { getCurrentUser } from '@/service/user'
+import { throttle } from 'lodash-es'
 
 // 客服头像
 const {VITE_CDN_URL,VITE_KF_AVATAR} = import.meta.env
 const kfAvatar = `${VITE_CDN_URL}${VITE_KF_AVATAR}`
 // 粉丝头像
 let guestAvatar: any
+
+// 聊天窗口引用
+const messageDisplayRef = ref()
 
 // 消息对象数组
 const messages: any = ref([]);
@@ -147,18 +150,20 @@ const onEnter = () => {
     content: newMessage.value,
     guestAvatar,
     isKf: 2,
-
   }
   messages.value.push(JSON.parse(JSON.stringify(res)))
   wsClient.sendMessage(JSON.parse(JSON.stringify(res)))
   newMessage.value = ''
+  nextTick(()=>{
+    messageDisplayRef.value.scrollTop = messageDisplayRef.value.scrollHeight
+  })
 }
 
 const checking = async () => {
   isShowChecking.value = true;
   let ok = await checkIP({ code: code.value }).then((res: any) => {
     if (res.code != 200) {
-      showToast({ type: '请求失败', message: res.message });
+      showFailToast(res.message);
       return
     }
     isShowChecking.value = false;
@@ -171,9 +176,52 @@ const checking = async () => {
   return ok
 }
 
-let wsClient: any
 const lastMsgTime = ref(0)
+let preScrollHeight = 0
+let preScrollTop = 0
+// 是否请求完消息
+const isLoadAll = ref(false)
 
+const getMsg = async()=>{
+  if(isLoadAll.value){
+    return 
+  }
+
+  preScrollHeight = messageDisplayRef.value.scrollHeight
+  preScrollTop = messageDisplayRef.value.scrollTop
+
+  let msgs = await msgList({lastMsgTime: lastMsgTime.value})
+
+  if(msgs.code === 200) {
+    if(msgs?.data?.messages) {
+      messages.value = [...msgs.data.messages,...messages.value]
+      lastMsgTime.value = msgs.data.messages[0].msgTime
+    }else{
+      isLoadAll.value = true
+    }
+    // 滚动条定位
+    nextTick(()=>{
+      if(preScrollHeight===0){
+        messageDisplayRef.value.scrollTop = messageDisplayRef.value.scrollHeight - messageDisplayRef.value.clientHeight
+      }else{
+        messageDisplayRef.value.scrollTop = (messageDisplayRef.value.scrollHeight-preScrollHeight)+preScrollTop
+      }
+    })
+  }
+}
+
+// 定义滚动事件处理函数
+const handleScroll = throttle(()=>{
+  const { scrollTop } = messageDisplayRef.value;
+  // 这里可以添加根据滚动位置执行的逻辑
+  if(scrollTop <= 0){
+    getMsg()
+  }
+},500)
+
+
+
+let wsClient: any
 onMounted(async () => {
 
   let pathMatch = route.params.pathMatch;
@@ -192,16 +240,11 @@ onMounted(async () => {
   }
 
   let user = getCurrentUser();
-  let msgs = await msgList({lastMsgTime: lastMsgTime.value})
-  if(msgs.code === 200) {
-    if(msgs.data.messages) {
-      messages.value.push(...msgs.data.messages)
-    }
-  }
-  console.log('msgList:', msgs);
   // 粉丝头像
   guestAvatar = `${VITE_CDN_URL}${user.avatar}`
-  
+
+  // 获取聊天记录
+  getMsg()
 
   let wsParams = {
     host: user.wsHost,
@@ -215,16 +258,20 @@ onMounted(async () => {
   wsClient.onMessage((res: any) => {
     console.log('接收到啦：', res);
     messages.value.push(JSON.parse(JSON.stringify(res)))
+    // 到最底部
+    nextTick(()=>{
+      messageDisplayRef.value.scrollTop = messageDisplayRef.value.scrollHeight
+    })
   })
 
-  // 获取视口高度
-  console.log('视口高度为:', window.innerHeight, 'px');
-  // 容器高度
-  console.log('展示区高度为:', document.querySelector('.chatroom-contain')?.clientHeight, 'px');
-  // 获取展示区的高度
-  console.log('展示区高度为:', document.querySelector('.message-display')?.clientHeight, 'px');
-  // 获取发送区域高度
-  console.log('发送区高度为:', document.querySelector('.input-area')?.clientHeight, 'px');
+  // 绑定滚动事件
+  messageDisplayRef.value.addEventListener('scroll',handleScroll)
+ 
+})
+
+onUnmounted(()=>{
+  // 解绑事件
+  messageDisplayRef.value.removeEventListener('scroll',handleScroll)
 })
 </script>
 
