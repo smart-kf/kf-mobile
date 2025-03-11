@@ -66,7 +66,7 @@ import { showFailToast } from 'vant'
 import WebSocketClient from '@/plugins/mySocket.ts';
 import dayjs from 'dayjs'
 import { showImagePreview, Loading } from 'vant';
-import { checkIP, msgList } from '@/service/user'
+import { checkIP, msgList,fileUpload } from '@/service/user'
 import { getCurrentUser } from '@/service/user'
 import { throttle } from 'lodash-es'
 
@@ -104,22 +104,36 @@ const onSelectEmoji = (emoji: any) => {
 }
 /** 选择表情包  */
 
+// 上传文件
+const handleUpload = async(formData:any,isImage:boolean)=>{
+  const res = await fileUpload(formData)
+  if(res.code === 200){
+    const {cdnHost,path} = res.data
+    // 发送至聊天框
+    const params = {
+      msgType: isImage ? 'image' : 'video', // 需要区分video or image
+      msgTime: Date.now(),
+      content: `${cdnHost}${path}`, //上传成功后获取到的url
+      guestAvatar,
+      isKf: 2,
+    }
+    messages.value.push(JSON.parse(JSON.stringify(params)))
+    wsClient.sendMessage(JSON.parse(JSON.stringify(params)))
+    nextTick(()=>{
+      messageDisplayRef.value.scrollTop = messageDisplayRef.value.scrollHeight
+    })
+  }
+}
+
 /** 选择文件 */
 const afterRead = (file: any) => {
   console.log('file:', file);
   const isImage = file.file.type.includes('image')
-  // TODO 上传至服务器
-  // 发送至聊天框
-  const res = {
-    msgType: isImage ? 'image' : 'video', // 需要区分video or image
-    msgTime: Date.now(),
-    content: isImage ? 'https://cdn.smartkf.top/text.png' : 'https://cdn.smartkf.top/QQ20250120-134814-HD.mp4', //上传成功后获取到的url
-    guestAvatar,
-    isKf: 2,
-  }
-  messages.value.push(JSON.parse(JSON.stringify(res)))
-  wsClient.sendMessage(JSON.parse(JSON.stringify(res)))
-  return true;
+  // 上传至服务器
+  const formData = new FormData();
+  formData.append('file', file.file);
+  formData.append('fileType', isImage ? 'image' : 'video');
+  handleUpload(formData,isImage)
 };
 
 // 预览图片
@@ -353,7 +367,6 @@ onUnmounted(()=>{
   position: relative;
 
   .video-box {
-    width: 200px;
     height: 120px;
   }
 
